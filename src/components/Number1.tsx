@@ -69,6 +69,8 @@ function Number1() {
     initializeLiff();
   }, []);
 
+  
+
   return (
     <div className="bg-orange-400 rounded-xl shadow-lg p-8 m-0  max-w-2xl mx-auto">
     {liffInitStatus === "failed" && (
