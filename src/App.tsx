@@ -224,17 +224,17 @@ import "./App.css";
 
 function App() {
   const [liffInitStatus, setLiffInitStatus] = useState("initializing");
-  const [error, setError] = useState<string | null>(null);
+  const [ error,setError] = useState<string | null>(null);
 
-  const handleLogin = () => {
-    liff.login();
-  };
+  // const handleLogin = () => {
+  //   liff.login();
+  // };
 
   const {
     isLoading: isLoadingTicket,
     error: ticketError,
     data: ticketData,
-  } = useQuery(
+  } = useQuery<any,Error,any>(
     "ticketData",
     async () => {
       const profile = await liff.getProfile();
@@ -254,7 +254,7 @@ function App() {
     isLoading: isLoadingExamination,
     error: examinationError,
     data: examinationData,
-  } = useQuery(
+  } = useQuery<any,Error,any>(
     "examinationData",
     async () => {
       const profile = await liff.getProfile();
@@ -294,6 +294,9 @@ function App() {
 
   return (
     <div className="bg-orange-400 rounded-xl shadow-lg p-8 m-0  max-w-2xl mx-auto">
+    {liffInitStatus === "failed" && (
+      <p className="text-red-500">エラー: {error}</p>
+    )}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl text-white font-bold">大濠パーククリニック🏥</h1>
         {/* HospitalIconコンポーネント */}
