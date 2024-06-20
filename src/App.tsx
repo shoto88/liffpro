@@ -274,7 +274,8 @@ function App() {
     const initializeLiff = async () => {
       try {
         await liff.init({
-          liffId: import.meta.env.VITE_LIFF_ID,
+          liffId: process.env.VITE_LIFF_ID as string,
+
         }).then(() => {
           if (liff.isLoggedIn()) {
           setLiffInitStatus("success");
