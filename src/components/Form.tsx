@@ -39,7 +39,7 @@ function Form1() {
     const initializeLiff = async () => {
       try {
         await liff.init({
-          liffId: import.meta.env.VITE_LIFF_ID2,
+          liffId: import.meta.env.VITE_LIFF_ID2 as string,
         });
         if (liff.isLoggedIn()) {
           setLiffInitStatus("success");
