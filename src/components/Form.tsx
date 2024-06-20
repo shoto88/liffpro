@@ -80,8 +80,8 @@ function Form1() {
   };
 
   return (
-    <div className="bg-orange-400 min-h-screen flex flex-col items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-md">
+    <div className="flex flex-col items-center justify-center">
+      <div className="bg-white border-2 border-gray-100 p-8 rounded-lg shadow-md">
         <h1 className="text-3xl font-bold text-center mb-4">
           診察券番号登録
         </h1>
@@ -112,8 +112,8 @@ function Form1() {
                 control={form.control}
                 name="examinationNumber"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>診察券番号</FormLabel>
+                  <FormItem className='flex flex-col'>
+                    <FormLabel className='text-left mb-2'>診察券番号を入力していただけますと、<br />lineが診察券代わりに利用できます😊</FormLabel>
                     <FormControl>
                       <Input placeholder="半角数字で診察券番号を入力" {...field} />
                     </FormControl>
@@ -121,7 +121,7 @@ function Form1() {
                   </FormItem>
                 )}
               />
-              <Button type="submit">更新</Button>
+              <Button type="submit" className="bg-pink-400 hover:bg-pink-600 text-white font-bold py-2 px-4 rounded ml-auto">登録</Button>
             </form>
           </Form>
         )}
