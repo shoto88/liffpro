@@ -239,7 +239,7 @@ function App() {
     async () => {
       const profile = await liff.getProfile();
       const response = await axios.get(
-        "https://lineback.shotoharu.workers.dev/api/lineinfo"
+        "https://backend.shotoharu.workers.dev/api/lineinfo"
       );
       return response.data.find(
         (item: any) => item.line_user_id === profile.userId
