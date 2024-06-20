@@ -22,7 +22,7 @@ function Number1() {
     async () => {
       const profile = await liff.getProfile();
       const response = await axios.get(
-        "https://backend.shotoharu.workers.dev/api/lineinfo"
+        "https://lineback.shotoharu.workers.dev/api/lineinfo"
       );
       return response.data.find(
         (item: any) => item.line_user_id === profile.userId
@@ -38,7 +38,7 @@ function Number1() {
     async () => {
       const profile = await liff.getProfile();
       const response = await axios.get(
-        `https://backend.shotoharu.workers.dev/api/follow/${profile.userId}/examination-number` // 新しいエンドポイント
+        `https://lineback.shotoharu.workers.dev/api/follow/${profile.userId}/examination-number` // 新しいエンドポイント
       );
       return response.data;
     },

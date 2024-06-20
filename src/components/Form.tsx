@@ -72,7 +72,7 @@ function Form1() {
       }
 
       const response = await axios.put(
-        `https://backend.shotoharu.workers.dev/api/follow/${userId}/examination-number`,
+        `https://lineback.shotoharu.workers.dev/api/follow/${userId}/examination-number`,
         { examinationNumber: data.examinationNumber }
       );
       setSubmitResult(response.data.message);
