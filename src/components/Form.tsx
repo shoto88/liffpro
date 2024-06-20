@@ -15,12 +15,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import "../App.css";
-
 const formSchema = z.object({
-  examinationNumber: z.string().min(1, { message: "診察券番号を入力してください。" }),
+  examinationNumber: z
+    .string()
+    .min(1, { message: "診察券番号を入力してください。" })
+    .regex(/^[0-9]+$/, { message: "半角数字のみで入力してください。" }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
+
 
 function Form1() {
   const [liffInitStatus, setLiffInitStatus] = useState("initializing");
@@ -115,7 +118,7 @@ function Form1() {
                   <FormItem className='flex flex-col'>
                     <FormLabel className='text-left mb-2'>ご登録いただけますと<br />lineを診察券代わりに利用できます😊</FormLabel>
                     <FormControl>
-                      <Input placeholder="半角数字で診察券番号を入力" {...field} />
+                      <Input type="number" placeholder="半角数字で診察券番号を入力" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
