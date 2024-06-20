@@ -80,10 +80,10 @@ function Form1() {
   };
 
   return (
-    <div className="App bg-gradient-to-r from-pink-200 to-blue-200 min-h-screen flex flex-col items-center justify-center">
+    <div className="bg-orange-400 min-h-screen flex flex-col items-center justify-center">
       <div className="bg-white p-8 rounded-lg shadow-md">
         <h1 className="text-3xl font-bold text-center mb-4">
-          診察券番号更新
+          診察券番号登録
         </h1>
 
         {liffInitStatus === "initializing" && (
@@ -115,7 +115,7 @@ function Form1() {
                   <FormItem>
                     <FormLabel>診察券番号</FormLabel>
                     <FormControl>
-                      <Input placeholder="診察券番号" {...field} />
+                      <Input placeholder="半角数字で診察券番号を入力" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
