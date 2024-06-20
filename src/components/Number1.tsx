@@ -33,20 +33,14 @@ function Number1() {
     }
   );
 
-  const {
-    isLoading: isLoadingExamination,
-    error: examinationError,
-    data: examinationData,
-  } = useQuery<any,Error,any>(
+  const { isLoading: isLoadingExamination, error: examinationError, data: examinationData } = useQuery<any, Error, any>(
     "examinationData",
     async () => {
       const profile = await liff.getProfile();
       const response = await axios.get(
-      "https://backend.shotoharu.workers.dev/api/lineinfo"
+        `https://backend.shotoharu.workers.dev/api/follow/${profile.userId}/examination-number` // 新しいエンドポイント
       );
-      return response.data.find(
-        (item: any) => item.line_user_id === profile.userId
-      );
+      return response.data;
     },
     {
       enabled: liffInitStatus === "success",
