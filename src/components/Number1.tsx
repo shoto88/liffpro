@@ -15,29 +15,7 @@ function Number1() {
   const [isLoadingLiff, setIsLoadingLiff] = useState(true); // LIFF初期化中フラグ
 
 
-  // const handleLogin = () => {
-  //   liff.login();
-  // };
 
-  // const {
-  //   isLoading: isLoadingTicket,
-  //   error: ticketError,
-  //   data: ticketData,
-  // } = useQuery<any,Error,any>(
-  //   "ticketData",
-  //   async () => {
-  //     const profile = await liff.getProfile();
-  //     const response = await axios.get(
-  //       "https://my-app.shotoharu.workers.dev/api/lineinfo"
-  //     );
-  //     return response.data.find(
-  //       (item: any) => item.line_user_id === profile.userId
-  //     );
-  //   },
-  //   {
-  //     enabled: liffInitStatus === "success",
-  //   }
-  // );
 
   const {
     isLoading: isLoadingTicket,
@@ -94,19 +72,7 @@ function Number1() {
     }
   );
 
-  // const { isLoading: isLoadingExamination, error: examinationError, data: examinationData } = useQuery<any, Error, any>(
-  //   "examinationData",
-  //   async () => {
-  //     const profile = await liff.getProfile();
-  //     const response = await axios.get(
-  //       `https://my-app.shotoharu.workers.dev/api/follow/${profile.userId}/examination-number` // 新しいエンドポイント
-  //     );
-  //     return response.data;
-  //   },
-  //   {
-  //     enabled: liffInitStatus === "success",
-  //   }
-  // );
+
 
   useEffect(() => {
     const initializeLiff = async () => {

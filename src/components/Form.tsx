@@ -76,28 +76,6 @@ function Form1() {
     liff.login();
   };
 
-  // const onSubmit = async (data: FormValues) => {
-  //   try {
-  //     const accessToken = liff.getAccessToken();
-  //     if (!accessToken) {
-  //       throw new Error("アクセストークンがありません。");
-  //     }
-
-  //     const response = await axios.post(
-  //       `https://my-app.shotoharu.workers.dev/api/follow`,
-  //       { examinationNumber: data.examinationNumber },
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${accessToken}`, 
-  //         },
-  //       }
-  //     );
-  //     setSubmitResult(response.data.message);
-  //   } catch (error) {
-  //     setError("登録に失敗しました。");
-  //     console.error("Error registering examination number:", error);
-  //   }
-  // };
 
   const onSubmit = async (data: FormValues) => {
     try {
