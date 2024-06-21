@@ -16,7 +16,6 @@ function Number1() {
 
 
 
-
   const {
     isLoading: isLoadingTicket,
     error: ticketError,
@@ -114,9 +113,19 @@ function Number1() {
 
   return (
     <div className="bg-orange-400 rounded-xl shadow-lg p-8 m-0  max-w-2xl mx-auto">
-    {liffInitStatus === "failed" && (
-      <p className="text-red-500">エラー: {error}</p>
-    )}
+  {liffInitStatus === "initializing" && (
+          <p className="text-gray-500 text-center">LIFF Initializing...</p>
+        )}
+        {liffInitStatus === "failed" && (
+          <div className="text-red-500 text-center">
+            <p>LIFF init failed.</p>
+            <p>
+              <code>{error}</code>
+            </p>
+          </div>
+        )}
+        {liffInitStatus === "success" && (
+          <>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl text-white font-bold">大濠パーククリニック🏥</h1>
         {/* HospitalIconコンポーネント */}
@@ -149,7 +158,8 @@ function Number1() {
           )}
         </div>
       </div>
-
+      </>
+        )}
       {/* LIFF init failedとlogin-requiredの表示は省略 */}
       {/* LIFF Documentationへのリンクも省略 */}
     </div>

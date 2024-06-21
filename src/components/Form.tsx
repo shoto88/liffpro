@@ -51,7 +51,7 @@ function Form1() {
     const initializeLiff = async () => {
       try {
         await liff.init({
-          liffId: import.meta.env.VITE_LIFF_ID as string,
+          liffId: import.meta.env.VITE_LIFF_ID_FORM as string,
         })
         if (!liff.isLoggedIn()) {
           console.log("ログインしていません");
