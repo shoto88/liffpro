@@ -80,7 +80,7 @@ function Form1() {
   const onSubmit = async (data: FormValues) => {
     try {
       const accessToken = liff.getAccessToken();
-      console.log(accessToken);
+      // console.log(accessToken);
       if (!accessToken) {
         throw new Error("アクセストークンがありません。");
       }
