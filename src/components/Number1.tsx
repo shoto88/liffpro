@@ -5,67 +5,142 @@ import liff from "@line/liff";
 import axios from "axios";
 import "../App.css";
 
+import LIFFInspectorPlugin from '@line/liff-inspector';
+
+liff.use(new LIFFInspectorPlugin());
+
 function Number1() {
   const [liffInitStatus, setLiffInitStatus] = useState("initializing");
   const [ error,setError] = useState<string | null>(null);
+  const [isLoadingLiff, setIsLoadingLiff] = useState(true); // LIFF初期化中フラグ
+
 
   // const handleLogin = () => {
   //   liff.login();
   // };
 
+  // const {
+  //   isLoading: isLoadingTicket,
+  //   error: ticketError,
+  //   data: ticketData,
+  // } = useQuery<any,Error,any>(
+  //   "ticketData",
+  //   async () => {
+  //     const profile = await liff.getProfile();
+  //     const response = await axios.get(
+  //       "https://my-app.shotoharu.workers.dev/api/lineinfo"
+  //     );
+  //     return response.data.find(
+  //       (item: any) => item.line_user_id === profile.userId
+  //     );
+  //   },
+  //   {
+  //     enabled: liffInitStatus === "success",
+  //   }
+  // );
+
   const {
     isLoading: isLoadingTicket,
     error: ticketError,
     data: ticketData,
-  } = useQuery<any,Error,any>(
+  } = useQuery<any, Error, any>(
     "ticketData",
     async () => {
-      const profile = await liff.getProfile();
+      const accessToken = liff.getAccessToken(); // アクセストークンを取得
+      if (!accessToken) {
+        throw new Error("アクセストークンがありません。");
+      }
+
       const response = await axios.get(
-        "https://my-app.shotoharu.workers.dev/api/lineinfo"
+        `${import.meta.env.VITE_API_BASE_URL}/api/tickets/number`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
       );
-      return response.data.find(
-        (item: any) => item.line_user_id === profile.userId
-      );
-    },
+      return response.data;// サーバー側でユーザーIDに基づいて情報を返すように変更
+   },
     {
-      enabled: liffInitStatus === "success",
+      enabled: liffInitStatus === "success" && !isLoadingLiff, 
+      retry: false,
     }
   );
-
-  const { isLoading: isLoadingExamination, error: examinationError, data: examinationData } = useQuery<any, Error, any>(
+  const {
+    isLoading: isLoadingExamination,
+    error: examinationError,
+    data: examinationData,
+  } = useQuery<any, Error, any>(
     "examinationData",
     async () => {
-      const profile = await liff.getProfile();
+      const accessToken = liff.getAccessToken();
+      if (!accessToken) {
+        throw new Error("アクセストークンがありません。");
+      }
+    
       const response = await axios.get(
-        `https://my-app.shotoharu.workers.dev/api/follow/${profile.userId}/examination-number` // 新しいエンドポイント
+        `${import.meta.env.VITE_API_BASE_URL}/api/follow/examination-number`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
       );
       return response.data;
     },
     {
-      enabled: liffInitStatus === "success",
+      enabled: liffInitStatus === "success" && !isLoadingLiff,
+      retry: false,
     }
   );
+
+  // const { isLoading: isLoadingExamination, error: examinationError, data: examinationData } = useQuery<any, Error, any>(
+  //   "examinationData",
+  //   async () => {
+  //     const profile = await liff.getProfile();
+  //     const response = await axios.get(
+  //       `https://my-app.shotoharu.workers.dev/api/follow/${profile.userId}/examination-number` // 新しいエンドポイント
+  //     );
+  //     return response.data;
+  //   },
+  //   {
+  //     enabled: liffInitStatus === "success",
+  //   }
+  // );
 
   useEffect(() => {
     const initializeLiff = async () => {
       try {
         await liff.init({
           liffId: import.meta.env.VITE_LIFF_ID as string,
-
-        }).then(() => {
-          if (liff.isLoggedIn()) {
-          setLiffInitStatus("success");
+        })
+        if (!liff.isLoggedIn()) {
+          setLiffInitStatus("login-required");
         } else {
-            setLiffInitStatus("login-required");
-          }
-        });
+          // ログイン済みの場合は、liff.readyを待ってから処理を実行
+          liff.ready.then(() => {
+            setLiffInitStatus("success");
+          });
+        }
       } catch (error) {
         setLiffInitStatus("failed");
         setError(error instanceof Error ? error.message : "Unknown Error");
+        return; 
       }
-    };
 
+      // liff.ready が true になったら初期化成功
+      liff.ready
+        .then(() => {
+          setLiffInitStatus("success");
+        })
+        .catch((error) => {
+          setLiffInitStatus("failed");
+          setError(error instanceof Error ? error.message : "Unknown Error");
+        })
+        .finally(() => {
+          setIsLoadingLiff(false); // LIFF初期化完了 (成功または失敗)
+        });
+    };
     initializeLiff();
   }, []);
 

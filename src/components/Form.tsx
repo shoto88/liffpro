@@ -15,6 +15,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import "../App.css";
+
+// import { LiffMockPlugin } from '@line/liff-mock';
+
+// liff.use();
+
+import LIFFInspectorPlugin from '@line/liff-inspector';
+
+liff.use(new LIFFInspectorPlugin());
+
 const formSchema = z.object({
   examinationNumber: z
     .string()
@@ -27,7 +36,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 function Form1() {
   const [liffInitStatus, setLiffInitStatus] = useState("initializing");
-  const [userId, setUserId] = useState<string | null>(null);
+
   const [submitResult, setSubmitResult] = useState("");
   const [error, setError] = useState("");
 
@@ -42,15 +51,16 @@ function Form1() {
     const initializeLiff = async () => {
       try {
         await liff.init({
-          liffId: import.meta.env.VITE_LIFF_ID2 as string,
-        });
-        if (liff.isLoggedIn()) {
-          setLiffInitStatus("success");
-
-          const profile = await liff.getProfile();
-          setUserId(profile.userId); // LINE IDを取得
-        } else {
+          liffId: import.meta.env.VITE_LIFF_ID as string,
+        })
+        if (!liff.isLoggedIn()) {
+          console.log("ログインしていません");
           setLiffInitStatus("login-required");
+        } else {
+          // ログイン済みの場合は、liff.readyを待ってから処理を実行
+          liff.ready.then(() => {
+            setLiffInitStatus("success");
+          });
         }
       } catch (error) {
         setLiffInitStatus("failed");
@@ -61,27 +71,59 @@ function Form1() {
     initializeLiff();
   }, []);
 
+
   const handleLogin = () => {
     liff.login();
   };
 
+  // const onSubmit = async (data: FormValues) => {
+  //   try {
+  //     const accessToken = liff.getAccessToken();
+  //     if (!accessToken) {
+  //       throw new Error("アクセストークンがありません。");
+  //     }
+
+  //     const response = await axios.post(
+  //       `https://my-app.shotoharu.workers.dev/api/follow`,
+  //       { examinationNumber: data.examinationNumber },
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${accessToken}`, 
+  //         },
+  //       }
+  //     );
+  //     setSubmitResult(response.data.message);
+  //   } catch (error) {
+  //     setError("登録に失敗しました。");
+  //     console.error("Error registering examination number:", error);
+  //   }
+  // };
+
   const onSubmit = async (data: FormValues) => {
     try {
-      if (!userId) {
-        throw new Error("LINE IDが取得できません。");
+      const accessToken = liff.getAccessToken();
+      console.log(accessToken);
+      if (!accessToken) {
+        throw new Error("アクセストークンがありません。");
       }
-
+  
       const response = await axios.put(
-        `https://my-app.shotoharu.workers.dev/api/follow/${userId}/examination-number`,
-        { examinationNumber: data.examinationNumber }
+        `${import.meta.env.VITE_API_BASE_URL}/api/follow/examination-number`,
+        { examinationNumber: data.examinationNumber },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
       );
+      console.log(response.data.message);
       setSubmitResult(response.data.message);
     } catch (error) {
-      setError("更新に失敗しました。");
-      console.error("Error updating examination number:", error);
+      setError("登録に失敗しました。");
+      console.error("Error registering examination number:", error);
     }
   };
-
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="bg-white border-2 border-gray-100 p-8 rounded-lg shadow-md">
@@ -124,7 +166,8 @@ function Form1() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="bg-pink-400 hover:bg-pink-600 flex flex-col items-left text-white font-bold py-2 px-4 rounded ml-auto">登録</Button>
+              <Button type="submit" className="bg-pink-400 hover:bg-pink-600 flex flex-col items-left text-white font-bold py-2 px-4 rounded shadow-lg ml-auto transition-transform duration-100 active:translate-y-1 active:shadow-none"
+            >登録</Button>
             </form>
           </Form>
         )}
