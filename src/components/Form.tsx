@@ -69,11 +69,14 @@ function Form1() {
       } catch (error) {
         setLiffInitStatus("failed");
         setError(error instanceof Error ? error.message : "Unknown Error");
+      } finally {
+        setIsLoadingLiff(false);
       }
-    };
 
+    };
     initializeLiff();
   }, []);
+
 
 
   const handleLogin = () => {
@@ -81,6 +84,7 @@ function Form1() {
   };
 
   const handleRelogin = async () => {
+    setIsLoadingLiff(true);
     try {
       await liff.login();
       setNeedRelogin(false);
@@ -89,6 +93,8 @@ function Form1() {
     } catch (loginError) {
       setError("ログインに失敗しました。しばらく経ってからもう一度お試しください。");
       console.error("Error during re-login:", loginError);
+    } finally {
+      setIsLoadingLiff(false);
     }
   };
   const onSubmit = async (data: FormValues) => {
@@ -128,17 +134,18 @@ function Form1() {
           診察券番号登録
         </h1>
 
-        {liffInitStatus === "initializing" && (
+        {isLoadingLiff ? (
           <p className="text-gray-500 text-center">LIFF Initializing...</p>
-        )}
-        {liffInitStatus === "failed" && (
-          <div className="text-red-500 text-center">
-            <p>LIFF init failed.</p>
-            <p>
-              <code>{error}</code>
-            </p>
-          </div>
-        )}
+        ) : (
+          <>
+            {liffInitStatus === "failed" && (
+              <div className="text-red-500 text-center">
+                <p>LIFF init failed.</p>
+                <p>
+                  <code>{error}</code>
+                </p>
+              </div>
+            )}
         {liffInitStatus === "login-required" && (
           <button
             onClick={handleLogin}
@@ -147,7 +154,7 @@ function Form1() {
             LINE Login
           </button>
         )}
-        {liffInitStatus === "success" && (
+         {liffInitStatus === "success" && !needRelogin && (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
@@ -172,12 +179,14 @@ function Form1() {
           <div className="mt-4 text-center">
             <p className="text-red-500 mb-2">{error}</p>
             <button 
-              onClick={handleRelogin}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            >
-              再ログイン
-            </button>
-          </div>
+                  onClick={handleRelogin}
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                >
+                  再ログイン
+                </button>
+              </div>
+            )}
+          </>
         )}
         {submitResult && <p className="text-green-500 text-center mt-4">登録が完了しました😊</p>}
       </div>
