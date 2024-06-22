@@ -109,7 +109,7 @@ function Form1() {
       }
   
       const response = await axios.put(
-        `${import.meta.env.VITE_API_BASE_URL}/api/follow/examination-number`,
+        `${import.meta.env.VITE_API_BASE_URL}/liff/follow/examination-number`,
         { examinationNumber: data.examinationNumber },
         {
           headers: {

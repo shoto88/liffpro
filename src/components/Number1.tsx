@@ -54,7 +54,7 @@ function Number1() {
       }
      
       const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}/api/tickets/number`,
+        `${import.meta.env.VITE_API_BASE_URL}/liff/tickets/number`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -82,7 +82,7 @@ function Number1() {
       }
     
       const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}/api/follow/examination-number`,
+        `${import.meta.env.VITE_API_BASE_URL}/liff/follow/examination-number`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
