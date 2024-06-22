@@ -162,7 +162,7 @@ function Number1() {
         <div className="bg-pink-300 text-white rounded-xl shadow-md p-6 text-center">
           <h2 className="text-md mt-2 font-bold mb-2">診察券番号</h2>
           {isLoadingExamination ? (
-            <p className="text-gray-500">Loading...</p>
+            <p className="text-gray-500 mt-3">Loading...</p>
           ) : examinationError ? (
             <p className="text-red-500 text-sm">再ログインが必要です</p>
           ) : examinationData?.examination_number ? (
