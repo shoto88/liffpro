@@ -1,5 +1,4 @@
-
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useQuery, useQueryClient } from "react-query";
 import liff from "@line/liff";
 import axios from "axios";
@@ -13,18 +12,19 @@ function Number1() {
   const [liffInitStatus, setLiffInitStatus] = useState("initializing");
   const [ error,setError] = useState<string | null>(null);
   const [isLoadingLiff, setIsLoadingLiff] = useState(true); // LIFF初期化中フラグ
-  const [retryCount, setRetryCount] = useState(0); 
   const MAX_RETRY_COUNT = 3;
-
+  const retryCountRef = useRef(0);
   const queryClient = useQueryClient();
   const handleApiError = async (error: any) => {
     if (axios.isAxiosError(error) && error.response?.status === 401) {
-      if (retryCount < MAX_RETRY_COUNT) {
+      if (retryCountRef.current < MAX_RETRY_COUNT) {
         try {
           await liff.login();
+          retryCountRef.current += 1; // 同期的にカウントを増加
+          
+          // リトライカウントが上限に達していない場合のみクエリを無効化
           queryClient.invalidateQueries("ticketData");
           queryClient.invalidateQueries("examinationData");
-          setRetryCount(prevCount => prevCount + 1);
         } catch (loginError) {
           setError("ログインに失敗しました。しばらく経ってからもう一度お試しください。");
           console.error("Error during re-login:", loginError);
@@ -37,6 +37,7 @@ function Number1() {
       console.error("Error fetching data:", error);
     }
   };
+
 
   const {
     isLoading: isLoadingTicket,
