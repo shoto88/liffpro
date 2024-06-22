@@ -95,8 +95,8 @@ function Form1() {
           },
         }
       );
-      console.log(response.data.message);
-      setSubmitResult(response.data.message);
+      // console.log(response.data.message);
+      setSubmitResult('登録が完了しました。');
     } catch (error) {
       setError("登録に失敗しました。");
       console.error("Error registering examination number:", error);
