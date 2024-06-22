@@ -12,33 +12,30 @@ function Number1() {
   const [liffInitStatus, setLiffInitStatus] = useState("initializing");
   const [ error,setError] = useState<string | null>(null);
   const [isLoadingLiff, setIsLoadingLiff] = useState(true); // LIFF初期化中フラグ
-  const MAX_RETRY_COUNT = 3;
-  const retryCountRef = useRef(0);
+  const [needRelogin, setNeedRelogin] = useState(false);
   const queryClient = useQueryClient();
   const handleApiError = async (error: any) => {
     if (axios.isAxiosError(error) && error.response?.status === 401) {
-      if (retryCountRef.current < MAX_RETRY_COUNT) {
-        try {
-          await liff.login();
-          retryCountRef.current += 1; // 同期的にカウントを増加
-          
-          // リトライカウントが上限に達していない場合のみクエリを無効化
-          queryClient.invalidateQueries("ticketData");
-          queryClient.invalidateQueries("examinationData");
-        } catch (loginError) {
-          setError("ログインに失敗しました。しばらく経ってからもう一度お試しください。");
-          console.error("Error during re-login:", loginError);
-        }
-      } else {
-        setError("ログインの試行回数が上限に達しました。アプリを再起動してください。");
-      }
+      setNeedRelogin(true);
+      setError("再ログインが必要です。下のボタンをクリックしてください。");
     } else {
       setError("データの取得に失敗しました。ネットワーク接続を確認してください。");
       console.error("Error fetching data:", error);
     }
   };
 
-
+  const handleRelogin = async () => {
+    try {
+      await liff.login();
+      setNeedRelogin(false);
+      setError(null);
+      queryClient.invalidateQueries("ticketData");
+      queryClient.invalidateQueries("examinationData");
+    } catch (loginError) {
+      setError("ログインに失敗しました。しばらく経ってからもう一度お試しください。");
+      console.error("Error during re-login:", loginError);
+    }
+  };
   const {
     isLoading: isLoadingTicket,
     error: ticketError,
@@ -67,7 +64,7 @@ function Number1() {
       return response.data;// サーバー側でユーザーIDに基づいて情報を返すように変更
    },
     {
-      enabled: liffInitStatus === "success" && !isLoadingLiff, 
+      enabled: liffInitStatus === "success" && !isLoadingLiff && !needRelogin,
       retry: false,
       onError: handleApiError,
     }
@@ -95,7 +92,7 @@ function Number1() {
       return response.data;
     },
     {
-      enabled: liffInitStatus === "success" && !isLoadingLiff,
+      enabled: liffInitStatus === "success" && !isLoadingLiff && !needRelogin,
       retry: false,
       onError: handleApiError,
     }
@@ -187,11 +184,21 @@ function Number1() {
             <p className="text-gray-500">LINEから発券されていません</p>
           )}
         </div>
-      </div>
-      </>
+      </div>  
+     
+        {needRelogin && (
+          <div className="mt-4 text-center">
+            <p className="text-red-500 mb-2">{error}</p>
+            <button 
+              onClick={handleRelogin}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            >
+              再ログイン
+            </button>
+          </div>
         )}
-      {/* LIFF init failedとlogin-requiredの表示は省略 */}
-      {/* LIFF Documentationへのリンクも省略 */}
+      </>
+    )}
     </div>
   );
 }
