@@ -13,24 +13,27 @@ function Number1() {
   const [liffInitStatus, setLiffInitStatus] = useState("initializing");
   const [ error,setError] = useState<string | null>(null);
   const [isLoadingLiff, setIsLoadingLiff] = useState(true); // LIFF初期化中フラグ
-  
+  const [retryCount, setRetryCount] = useState(0); 
+  const MAX_RETRY_COUNT = 3;
 
   const queryClient = useQueryClient();
   const handleApiError = async (error: any) => {
-    if (axios.isAxiosError(error) && error.response?.status === 401) { // 401エラーの場合
-      try {
-        await liff.login(); // 再ログインを試みる
-        // 再ログイン後にクエリを再実行
-        queryClient.invalidateQueries("ticketData");
-        queryClient.invalidateQueries("examinationData");
-      } catch (loginError) {
-        // 再ログインに失敗した場合のエラー処理
-        setError("ログインに失敗しました。");
-        console.error("Error during re-login:", loginError);
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      if (retryCount < MAX_RETRY_COUNT) {
+        try {
+          await liff.login();
+          queryClient.invalidateQueries("ticketData");
+          queryClient.invalidateQueries("examinationData");
+          setRetryCount(prevCount => prevCount + 1);
+        } catch (loginError) {
+          setError("ログインに失敗しました。しばらく経ってからもう一度お試しください。");
+          console.error("Error during re-login:", loginError);
+        }
+      } else {
+        setError("ログインの試行回数が上限に達しました。アプリを再起動してください。");
       }
     } else {
-      // 401以外のエラーの場合
-      setError("データの取得に失敗しました。");
+      setError("データの取得に失敗しました。ネットワーク接続を確認してください。");
       console.error("Error fetching data:", error);
     }
   };
@@ -46,12 +49,17 @@ function Number1() {
       if (!accessToken) {
         throw new Error("アクセストークンがありません。");
       }
-      
+      const expiredAccessToken = "your_expired_access_token"; 
       const response = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}/api/tickets/number`,
+        // {
+        //   headers: {
+        //     Authorization: `Bearer ${accessToken}`,
+        //   },
+        // }
         {
           headers: {
-            Authorization: `Bearer ${accessToken}`,
+            Authorization: `Bearer ${expiredAccessToken}`,
           },
         }
       );
