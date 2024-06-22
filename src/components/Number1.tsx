@@ -177,7 +177,7 @@ function Number1() {
           {isLoadingTicket ? (
             <p className="text-gray-500">Loading...</p>
           ) : ticketError ? (
-            <p className="text-red-500">Error: {ticketError.message}</p>
+            <p className="text-red-500 text-sm">Error: 再ログインが必要です</p>
           ) : ticketData?.ticket_number ? (
             <span className="text-5xl font-semibold">{ticketData.ticket_number}</span>
           ) : (
