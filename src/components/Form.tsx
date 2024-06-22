@@ -185,7 +185,7 @@ function Form1() {
           </Form>
         )}
         {isSubmitting && <p className="text-blue-500 text-center mt-4">登録中です...</p>}
-        {submitResult && <p className="text-green-500 text-center mt-4">{submitResult}</p>}
+        {submitResult && <p className="text-green-500 text-center mt-4">登録が完了しました😊</p>}
         {error && <p className="text-red-500 text-center mt-4">{error}</p>}
 
         {needRelogin && (
@@ -201,7 +201,7 @@ function Form1() {
             )}
           </>
         )}
-        {submitResult && <p className="text-green-500 text-center mt-4">登録が完了しました😊</p>}
+       
       </div>
     </div>
   );
