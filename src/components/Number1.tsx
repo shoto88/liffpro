@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import liff from "@line/liff";
 import axios from "axios";
 import "../App.css";
@@ -13,8 +13,27 @@ function Number1() {
   const [liffInitStatus, setLiffInitStatus] = useState("initializing");
   const [ error,setError] = useState<string | null>(null);
   const [isLoadingLiff, setIsLoadingLiff] = useState(true); // LIFF初期化中フラグ
+  
 
-
+  const queryClient = useQueryClient();
+  const handleApiError = async (error: any) => {
+    if (axios.isAxiosError(error) && error.response?.status === 401) { // 401エラーの場合
+      try {
+        await liff.login(); // 再ログインを試みる
+        // 再ログイン後にクエリを再実行
+        queryClient.invalidateQueries("ticketData");
+        queryClient.invalidateQueries("examinationData");
+      } catch (loginError) {
+        // 再ログインに失敗した場合のエラー処理
+        setError("ログインに失敗しました。");
+        console.error("Error during re-login:", loginError);
+      }
+    } else {
+      // 401以外のエラーの場合
+      setError("データの取得に失敗しました。");
+      console.error("Error fetching data:", error);
+    }
+  };
 
   const {
     isLoading: isLoadingTicket,
@@ -27,12 +46,17 @@ function Number1() {
       if (!accessToken) {
         throw new Error("アクセストークンがありません。");
       }
-
+      const expiredAccessToken = "your_expired_access_token"; 
       const response = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}/api/tickets/number`,
+        // {
+        //   headers: {
+        //     Authorization: `Bearer ${accessToken}`,
+        //   },
+        // }
         {
           headers: {
-            Authorization: `Bearer ${accessToken}`,
+            Authorization: `Bearer ${expiredAccessToken}`,
           },
         }
       );
@@ -41,6 +65,7 @@ function Number1() {
     {
       enabled: liffInitStatus === "success" && !isLoadingLiff, 
       retry: false,
+      onError: handleApiError,
     }
   );
   const {
@@ -54,17 +79,12 @@ function Number1() {
       if (!accessToken) {
         throw new Error("アクセストークンがありません。");
       }
-      const expiredAccessToken = "your_expired_access_token"; 
+    
       const response = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}/api/follow/examination-number`,
-        // {
-        //   headers: {
-        //     Authorization: `Bearer ${accessToken}`,
-        //   },
-        // }
         {
           headers: {
-            Authorization: `Bearer ${expiredAccessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
         }
       );
@@ -73,6 +93,7 @@ function Number1() {
     {
       enabled: liffInitStatus === "success" && !isLoadingLiff,
       retry: false,
+      onError: handleApiError,
     }
   );
 
