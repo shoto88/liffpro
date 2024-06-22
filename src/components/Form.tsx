@@ -40,7 +40,8 @@ function Form1() {
   const [submitResult, setSubmitResult] = useState("");
   const [error, setError] = useState("");
 
-
+  const [needRelogin, setNeedRelogin] = useState(false);
+  const [isLoadingLiff, setIsLoadingLiff] = useState(true); // 
 
   
   const form = useForm<FormValues>({
@@ -79,7 +80,17 @@ function Form1() {
     liff.login();
   };
 
-
+  const handleRelogin = async () => {
+    try {
+      await liff.login();
+      setNeedRelogin(false);
+      setError("");
+      setLiffInitStatus("success");
+    } catch (loginError) {
+      setError("ログインに失敗しました。しばらく経ってからもう一度お試しください。");
+      console.error("Error during re-login:", loginError);
+    }
+  };
   const onSubmit = async (data: FormValues) => {
     try {
       const accessToken = liff.getAccessToken();
@@ -101,7 +112,12 @@ function Form1() {
       // console.log(response.data.message);
       setSubmitResult(response.data.message);
     } catch (error) {
-      setError("登録に失敗しました。");
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        setNeedRelogin(true);
+        setError("再ログインが必要です。下のボタンをクリックしてください。");
+      } else {
+        setError("登録に失敗しました。ネットワーク接続を確認してください。");
+      }
       console.error("Error registering examination number:", error);
     }
   };
@@ -152,7 +168,17 @@ function Form1() {
             </form>
           </Form>
         )}
-
+        {needRelogin && (
+          <div className="mt-4 text-center">
+            <p className="text-red-500 mb-2">{error}</p>
+            <button 
+              onClick={handleRelogin}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            >
+              再ログイン
+            </button>
+          </div>
+        )}
         {submitResult && <p className="text-green-500 text-center mt-4">登録が完了しました😊</p>}
       </div>
     </div>
