@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import liff from "@line/liff";
+import liff from "@line/liff/core";
+import IsLoggedIn from "@line/liff/is-logged-in";
+import Login from "@line/liff/login";
+import GetAccessToken from "@line/liff/get-access-token";
 import axios from "axios";
 import {
   Form,
@@ -20,9 +23,9 @@ import "../App.css";
 
 // liff.use();
 
-import LIFFInspectorPlugin from '@line/liff-inspector';
-
-liff.use(new LIFFInspectorPlugin());
+liff.use(new IsLoggedIn());
+liff.use(new Login());
+liff.use(new GetAccessToken());
 
 const formSchema = z.object({
   examinationNumber: z

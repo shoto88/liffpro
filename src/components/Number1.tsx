@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
-import liff from "@line/liff";
+import liff from "@line/liff/core";
+import IsLoggedIn from "@line/liff/is-logged-in";
+import Login from "@line/liff/login";
+import GetAccessToken from "@line/liff/get-access-token";
 import axios from "axios";
 import "../App.css";
 
-import LIFFInspectorPlugin from '@line/liff-inspector';
 
-liff.use(new LIFFInspectorPlugin());
+liff.use(new IsLoggedIn());
+liff.use(new Login());
+liff.use(new GetAccessToken());
+
 
 function Number1() {
   const [liffInitStatus, setLiffInitStatus] = useState("initializing");
