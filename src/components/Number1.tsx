@@ -174,7 +174,7 @@ function Number1() {
           ) : ticketError ? (
             <p className="text-red-500 text-sm">再ログインが必要です</p>
           ) : ticketData?.ticket_number ? (
-            <span className="text-4xl flex items-center justify-center  mt-6 font-semibold">{ticketData.ticket_number}</span>
+            <span className="text-4xl flex items-center justify-center  mt-5 font-semibold">{ticketData.ticket_number}</span>
           ) : (
             <p className="text-gray-500">LINEから発券されていません</p>
           )}
