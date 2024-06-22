@@ -47,17 +47,12 @@ function Number1() {
       if (!accessToken) {
         throw new Error("アクセストークンがありません。");
       }
-      const expiredAccessToken = "your_expired_access_token"; 
+     
       const response = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}/api/tickets/number`,
-        // {
-        //   headers: {
-        //     Authorization: `Bearer ${accessToken}`,
-        //   },
-        // }
         {
           headers: {
-            Authorization: `Bearer ${expiredAccessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
         }
       );
@@ -179,7 +174,7 @@ function Number1() {
           ) : ticketError ? (
             <p className="text-red-500 text-sm">再ログインが必要です</p>
           ) : ticketData?.ticket_number ? (
-            <span className="text-5xl font-semibold">{ticketData.ticket_number}</span>
+            <span className="text-4xl font-semibold">{ticketData.ticket_number}</span>
           ) : (
             <p className="text-gray-500">LINEから発券されていません</p>
           )}
