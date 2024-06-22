@@ -45,6 +45,7 @@ function Form1() {
 
   const [needRelogin, setNeedRelogin] = useState(false);
   const [isLoadingLiff, setIsLoadingLiff] = useState(true); // 
+  const [isSubmitting, setIsSubmitting] = useState(false); // 新しい状態を追加
 
   
   const form = useForm<FormValues>({
@@ -101,6 +102,9 @@ function Form1() {
     }
   };
   const onSubmit = async (data: FormValues) => {
+    setIsSubmitting(true); // 送信開始時にtrueに設定
+    setSubmitResult(""); // 以前の結果をクリア
+    setError(""); // 以前のエラーをクリア
     try {
       const accessToken = liff.getAccessToken();
       // console.log(accessToken);
@@ -128,6 +132,8 @@ function Form1() {
         setError("登録に失敗しました。ネットワーク接続を確認してください。");
       }
       console.error("Error registering examination number:", error);
+    } finally {
+      setIsSubmitting(false); // 送信完了時にfalseに設定
     }
   };
   return (
@@ -178,6 +184,10 @@ function Form1() {
             </form>
           </Form>
         )}
+        {isSubmitting && <p className="text-blue-500 text-center mt-4">登録中です...</p>}
+        {submitResult && <p className="text-green-500 text-center mt-4">{submitResult}</p>}
+        {error && <p className="text-red-500 text-center mt-4">{error}</p>}
+
         {needRelogin && (
           <div className="mt-4 text-center">
             <p className="text-red-500 mb-2">{error}</p>
