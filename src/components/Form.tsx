@@ -96,7 +96,7 @@ function Form1() {
         }
       );
       // console.log(response.data.message);
-      setSubmitResult('登録が完了しました。');
+      setSubmitResult(response.data.message);
     } catch (error) {
       setError("登録に失敗しました。");
       console.error("Error registering examination number:", error);
@@ -150,7 +150,7 @@ function Form1() {
           </Form>
         )}
 
-        {submitResult && <p className="text-green-500 text-center mt-4">{submitResult}</p>}
+        {submitResult && <p className="text-green-500 text-center mt-4">登録が完了しました😊</p>}
       </div>
     </div>
   );
