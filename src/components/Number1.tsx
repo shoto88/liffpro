@@ -164,7 +164,7 @@ function Number1() {
           {isLoadingExamination ? (
             <p className="text-gray-500">Loading...</p>
           ) : examinationError ? (
-            <p className="text-red-500 text-sm">Error: 再ログインが必要です</p>
+            <p className="text-red-500 text-sm">再ログインが必要です</p>
           ) : examinationData?.examination_number ? (
             <span className="text-4xl flex items-center justify-center  mt-8 font-semibold">{examinationData.examination_number}</span>
           ) : (
@@ -177,7 +177,7 @@ function Number1() {
           {isLoadingTicket ? (
             <p className="text-gray-500">Loading...</p>
           ) : ticketError ? (
-            <p className="text-red-500 text-sm">Error: 再ログインが必要です</p>
+            <p className="text-red-500 text-sm">再ログインが必要です</p>
           ) : ticketData?.ticket_number ? (
             <span className="text-5xl font-semibold">{ticketData.ticket_number}</span>
           ) : (
