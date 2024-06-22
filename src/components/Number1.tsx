@@ -54,12 +54,17 @@ function Number1() {
       if (!accessToken) {
         throw new Error("アクセストークンがありません。");
       }
-    
+      const expiredAccessToken = "your_expired_access_token"; 
       const response = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}/api/follow/examination-number`,
+        // {
+        //   headers: {
+        //     Authorization: `Bearer ${accessToken}`,
+        //   },
+        // }
         {
           headers: {
-            Authorization: `Bearer ${accessToken}`,
+            Authorization: `Bearer ${expiredAccessToken}`,
           },
         }
       );
