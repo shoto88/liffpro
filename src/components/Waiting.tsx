@@ -106,7 +106,7 @@ function WaitingTimeChecker() {
       }
 
       const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}/api/waiting-time/${number}`,
+        `${import.meta.env.VITE_API_BASE_URL}/liff/waiting-time/${number}`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
