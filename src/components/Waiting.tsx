@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
 import liff from "@line/liff/core";
 import IsLoggedIn from "@line/liff/is-logged-in";
