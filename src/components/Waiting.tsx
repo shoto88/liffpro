@@ -6,7 +6,8 @@ import Login from "@line/liff/login";
 import GetAccessToken from "@line/liff/get-access-token";
 import axios from "axios";
 import "../App.css";
-import { Button, Input } from '@/components/ui/card';
+import { Button} from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 
 liff.use(new IsLoggedIn());
 liff.use(new Login());
