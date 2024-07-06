@@ -6,8 +6,9 @@ import Login from "@line/liff/login";
 import GetAccessToken from "@line/liff/get-access-token";
 import axios from "axios";
 import "../App.css";
-import { Button} from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+
 
 liff.use(new IsLoggedIn());
 liff.use(new Login());
@@ -128,7 +129,7 @@ function WaitingTimeChecker() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     fetchWaitingTime(inputNumber);
   };
@@ -161,7 +162,7 @@ function WaitingTimeChecker() {
             ) : ticketData?.ticket_number ? (
               <>
                 <p className="mb-2">あなたの発券番号: {ticketData.ticket_number}</p>
-                <Button 
+                <Button
                   onClick={() => fetchWaitingTime(ticketData.ticket_number.toString())}
                   className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                 >
