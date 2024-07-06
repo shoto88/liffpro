@@ -73,16 +73,17 @@ function WaitingTimeChecker() {
       onError: handleApiError,
     }
   );
-
   useEffect(() => {
     const initializeLiff = async () => {
       try {
         await liff.init({
           liffId: import.meta.env.VITE_LIFF_ID_WAIT as string,
-        })
+        });
         if (!liff.isLoggedIn()) {
+          console.log("ログインしていません");
           setLiffInitStatus("login-required");
         } else {
+          // ログイン済みの場合は、liff.readyを待ってから処理を実行
           liff.ready.then(() => {
             setLiffInitStatus("success");
           });
@@ -90,20 +91,9 @@ function WaitingTimeChecker() {
       } catch (error) {
         setLiffInitStatus("failed");
         setError(error instanceof Error ? error.message : "Unknown Error");
-        return; 
+      } finally {
+        setIsLoadingLiff(false);
       }
-
-      liff.ready
-        .then(() => {
-          setLiffInitStatus("success");
-        })
-        .catch((error) => {
-          setLiffInitStatus("failed");
-          setError(error instanceof Error ? error.message : "Unknown Error");
-        })
-        .finally(() => {
-          setIsLoadingLiff(false);
-        });
     };
     initializeLiff();
   }, []);
