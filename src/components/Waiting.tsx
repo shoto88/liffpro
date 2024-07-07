@@ -178,8 +178,8 @@ function WaitingTimeChecker() {
               <form onSubmit={handleSubmit} className="mt-4">
                 {isAutoFetched ? (
                   <div className="mb-4 p-2 bg-blue-100 rounded-md">
-                    <p className="text-sm text-blue-800 mb-2">
-                      LINEから発券された番号は以下です。受付にて番号に変更があった場合は新しい番号を入力してください。
+                    <p className="text-sm text-left text-blue-800 mb-2">
+                      発券番号は以下です。来院時、受付にて番号に変更があった場合は新しい番号を入力してください。
                     </p>
                   </div>
                 ) : (
