@@ -20,6 +20,8 @@ function WaitingTimeChecker() {
   const [needRelogin, setNeedRelogin] = useState(false);
   const [inputNumber, setInputNumber] = useState('');
   const [waitingTime, setWaitingTime] = useState<number | null>(null);
+  const [currentTreatment, setCurrentTreatment] = useState<number | null>(null);
+  const [showWaitingInfo, setShowWaitingInfo] = useState(false);
   const queryClient = useQueryClient();
 
   const handleApiError = async (error: any) => {
@@ -113,7 +115,6 @@ function WaitingTimeChecker() {
           console.log("ログインしていません");
           setLiffInitStatus("login-required");
         } else {
-          // ログイン済みの場合は、liff.readyを待ってから処理を実行
           liff.ready.then(() => {
             setLiffInitStatus("success");
           });
@@ -128,24 +129,27 @@ function WaitingTimeChecker() {
     initializeLiff();
   }, []);
 
-  const calculateWaitingTime = (ticketNumber: number) => {
-    if (waitingTimeInfo) {
+  useEffect(() => {
+    if (ticketData?.ticket_number) {
+      setInputNumber(ticketData.ticket_number.toString());
+    }
+  }, [ticketData]);
+
+  const calculateWaitingTime = () => {
+    if (waitingTimeInfo && inputNumber) {
+      const ticketNumber = parseInt(inputNumber);
       const peopleAhead = Math.max(0, ticketNumber - waitingTimeInfo.currentTreatment);
       const estimatedWaitingTime = peopleAhead * waitingTimeInfo.averageExaminationTime;
       setWaitingTime(estimatedWaitingTime);
+      setCurrentTreatment(waitingTimeInfo.currentTreatment);
+      setShowWaitingInfo(true);
     }
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    calculateWaitingTime(parseInt(inputNumber));
+    calculateWaitingTime();
   };
-
-  useEffect(() => {
-    if (ticketData?.ticket_number && waitingTimeInfo) {
-      calculateWaitingTime(ticketData.ticket_number);
-    }
-  }, [ticketData, waitingTimeInfo]);
 
   return (
     <div className="bg-orange-400 rounded-xl shadow-lg p-8 m-0 max-w-2xl mx-auto">
@@ -172,16 +176,6 @@ function WaitingTimeChecker() {
               <p className="text-gray-500">Loading...</p>
             ) : ticketError || waitingTimeInfoError ? (
               <p className="text-red-500 text-sm">再ログインが必要です</p>
-            ) : ticketData?.ticket_number ? (
-              <>
-                <p className="mb-2">あなたの発券番号: {ticketData.ticket_number}</p>
-                <Button
-                  onClick={() => calculateWaitingTime(ticketData.ticket_number)}
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                >
-                  待ち時間を確認
-                </Button>
-              </>
             ) : (
               <form onSubmit={handleSubmit} className="mt-4">
                 <Input
@@ -199,13 +193,14 @@ function WaitingTimeChecker() {
                 </Button>
               </form>
             )}
-            {waitingTime !== null && (
-              <p className="mt-4 text-lg font-bold">予想待ち時間: {waitingTime}分</p>
-            )}
-            {waitingTimeInfo && (
+            {showWaitingInfo && (
               <div className="mt-4">
-                <p>現在診察中の番号: {waitingTimeInfo.currentTreatment}</p>
-                <p>平均診察時間: {waitingTimeInfo.averageExaminationTime}分</p>
+                {waitingTime !== null && (
+                  <p className="text-lg font-bold">予想待ち時間: {waitingTime}分</p>
+                )}
+                {currentTreatment !== null && (
+                  <p>現在診療中の番号: {currentTreatment}</p>
+                )}
               </div>
             )}
           </div>
