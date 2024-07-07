@@ -22,6 +22,7 @@ function WaitingTimeChecker() {
   const [waitingTime, setWaitingTime] = useState<number | null>(null);
   const [currentTreatment, setCurrentTreatment] = useState<number | null>(null);
   const [showWaitingInfo, setShowWaitingInfo] = useState(false);
+  const [isAutoFetched, setIsAutoFetched] = useState(false);
   const queryClient = useQueryClient();
 
   const handleApiError = async (error: any) => {
@@ -132,6 +133,9 @@ function WaitingTimeChecker() {
   useEffect(() => {
     if (ticketData?.ticket_number) {
       setInputNumber(ticketData.ticket_number.toString());
+      setIsAutoFetched(true);
+    } else {
+      setIsAutoFetched(false);
     }
   }, [ticketData]);
 
@@ -164,7 +168,7 @@ function WaitingTimeChecker() {
           </p>
         </div>
       )}
-      {liffInitStatus === "success" && (
+          {liffInitStatus === "success" && (
         <>
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-xl text-white font-bold">大濠パーククリニック🏥</h1>
@@ -178,12 +182,24 @@ function WaitingTimeChecker() {
               <p className="text-red-500 text-sm">再ログインが必要です</p>
             ) : (
               <form onSubmit={handleSubmit} className="mt-4">
+                {isAutoFetched ? (
+                  <div className="mb-4 p-2 bg-blue-100 rounded-md">
+                    <p className="text-sm text-blue-800 mb-2">
+                      あなたの発券番号が自動で取得されました。
+                      必要に応じて修正できます。
+                    </p>
+                  </div>
+                ) : (
+                  <p className="mb-2 text-sm text-gray-600">
+                    発券番号を入力してください
+                  </p>
+                )}
                 <Input
                   type="number"
                   value={inputNumber}
                   onChange={(e) => setInputNumber(e.target.value)}
-                  placeholder="発券番号を入力してください"
-                  className="mb-2 p-2 border rounded"
+                  placeholder="発券番号"
+                  className={`mb-2 p-2 border rounded ${isAutoFetched ? 'border-blue-500' : 'border-gray-300'}`}
                 />
                 <Button 
                   type="submit"
