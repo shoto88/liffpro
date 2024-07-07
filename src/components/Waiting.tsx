@@ -156,25 +156,19 @@ function WaitingTimeChecker() {
   };
 
   return (
-    <div className="bg-orange-400 rounded-xl shadow-lg p-8 m-0 max-w-2xl mx-auto">
+    <div className="p-4 max-w-md mx-auto">
       {liffInitStatus === "initializing" && (
         <p className="text-gray-500 text-center">LIFF Initializing...</p>
       )}
       {liffInitStatus === "failed" && (
         <div className="text-red-500 text-center">
           <p>LIFF init failed.</p>
-          <p>
-            <code>{error}</code>
-          </p>
+          <p><code>{error}</code></p>
         </div>
       )}
-          {liffInitStatus === "success" && (
+      {liffInitStatus === "success" && (
         <>
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-xl text-white font-bold">大濠パーククリニック🏥</h1>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-md p-6 text-center">
+          <div className="bg-white rounded-xl shadow-md p-6">
             <h2 className="text-lg font-bold mb-4">待ち時間確認</h2>
             {isLoadingTicket || isLoadingWaitingTimeInfo ? (
               <p className="text-gray-500">Loading...</p>
@@ -185,8 +179,7 @@ function WaitingTimeChecker() {
                 {isAutoFetched ? (
                   <div className="mb-4 p-2 bg-blue-100 rounded-md">
                     <p className="text-sm text-blue-800 mb-2">
-                      あなたの発券番号が自動で取得されました。
-                      必要に応じて修正できます。
+                      LINEから発券された番号は以下です。受付にて番号に変更があった場合は下記を修正してください。
                     </p>
                   </div>
                 ) : (
@@ -203,7 +196,7 @@ function WaitingTimeChecker() {
                 />
                 <Button 
                   type="submit"
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
                 >
                   待ち時間を確認
                 </Button>
