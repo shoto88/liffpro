@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,7 +11,7 @@ import axios from "axios";
 import "../App.css";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "./ui/form";
+import { Form, FormField, FormItem, FormControl, FormMessage } from "./ui/form";
 
 liff.use(new IsLoggedIn());
 liff.use(new Login());
