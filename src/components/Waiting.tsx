@@ -21,7 +21,7 @@ const formSchema = z.object({
   ticketNumber: z
     .string()
     .min(1, { message: "発券番号を入力してください。" })
-    .regex(/^[0-9]+$/, { message: "半角数字のみで入力してください。" }),
+    .regex(/^[a-zA-Z0-9]+$/, { message: '半角英数字で入力してください' }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
