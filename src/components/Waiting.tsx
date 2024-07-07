@@ -9,7 +9,6 @@ import "../App.css";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 
-
 liff.use(new IsLoggedIn());
 liff.use(new Login());
 liff.use(new GetAccessToken());
@@ -39,6 +38,7 @@ function WaitingTimeChecker() {
       setNeedRelogin(false);
       setError(null);
       queryClient.invalidateQueries("ticketData");
+      queryClient.invalidateQueries("waitingTimeInfo");
     } catch (loginError) {
       setError("ログインに失敗しました。しばらく経ってからもう一度お試しください。");
       console.error("Error during re-login:", loginError);
@@ -73,6 +73,36 @@ function WaitingTimeChecker() {
       onError: handleApiError,
     }
   );
+
+  const {
+    isLoading: isLoadingWaitingTimeInfo,
+    error: waitingTimeInfoError,
+    data: waitingTimeInfo,
+  } = useQuery<any, Error, any>(
+    "waitingTimeInfo",
+    async () => {
+      const accessToken = liff.getAccessToken();
+      if (!accessToken) {
+        throw new Error("アクセストークンがありません。");
+      }
+     
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_BASE_URL}/liff/waiting-time-info`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      return response.data;
+    },
+    {
+      enabled: liffInitStatus === "success" && !isLoadingLiff && !needRelogin,
+      retry: false,
+      onError: handleApiError,
+    }
+  );
+
   useEffect(() => {
     const initializeLiff = async () => {
       try {
@@ -98,32 +128,24 @@ function WaitingTimeChecker() {
     initializeLiff();
   }, []);
 
-  const fetchWaitingTime = async (number: string) => {
-    try {
-      const accessToken = liff.getAccessToken();
-      if (!accessToken) {
-        throw new Error("アクセストークンがありません。");
-      }
-  
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}/liff/waiting-time/${number}`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-      console.log("Waiting time response:", response.data);
-      setWaitingTime(response.data.waitingTime);
-    } catch (error) {
-      handleApiError(error);
+  const calculateWaitingTime = (ticketNumber: number) => {
+    if (waitingTimeInfo) {
+      const peopleAhead = Math.max(0, ticketNumber - waitingTimeInfo.currentTreatment);
+      const estimatedWaitingTime = peopleAhead * waitingTimeInfo.averageExaminationTime;
+      setWaitingTime(estimatedWaitingTime);
     }
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    fetchWaitingTime(inputNumber);
+    calculateWaitingTime(parseInt(inputNumber));
   };
+
+  useEffect(() => {
+    if (ticketData?.ticket_number && waitingTimeInfo) {
+      calculateWaitingTime(ticketData.ticket_number);
+    }
+  }, [ticketData, waitingTimeInfo]);
 
   return (
     <div className="bg-orange-400 rounded-xl shadow-lg p-8 m-0 max-w-2xl mx-auto">
@@ -146,15 +168,15 @@ function WaitingTimeChecker() {
 
           <div className="bg-white rounded-xl shadow-md p-6 text-center">
             <h2 className="text-lg font-bold mb-4">待ち時間確認</h2>
-            {isLoadingTicket ? (
+            {isLoadingTicket || isLoadingWaitingTimeInfo ? (
               <p className="text-gray-500">Loading...</p>
-            ) : ticketError ? (
+            ) : ticketError || waitingTimeInfoError ? (
               <p className="text-red-500 text-sm">再ログインが必要です</p>
             ) : ticketData?.ticket_number ? (
               <>
                 <p className="mb-2">あなたの発券番号: {ticketData.ticket_number}</p>
                 <Button
-                  onClick={() => fetchWaitingTime(ticketData.ticket_number.toString())}
+                  onClick={() => calculateWaitingTime(ticketData.ticket_number)}
                   className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                 >
                   待ち時間を確認
@@ -179,6 +201,12 @@ function WaitingTimeChecker() {
             )}
             {waitingTime !== null && (
               <p className="mt-4 text-lg font-bold">予想待ち時間: {waitingTime}分</p>
+            )}
+            {waitingTimeInfo && (
+              <div className="mt-4">
+                <p>現在診察中の番号: {waitingTimeInfo.currentTreatment}</p>
+                <p>平均診察時間: {waitingTimeInfo.averageExaminationTime}分</p>
+              </div>
             )}
           </div>
   
