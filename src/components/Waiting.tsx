@@ -104,7 +104,7 @@ function WaitingTimeChecker() {
       if (!accessToken) {
         throw new Error("アクセストークンがありません。");
       }
-
+  
       const response = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}/liff/waiting-time/${number}`,
         {
@@ -113,6 +113,7 @@ function WaitingTimeChecker() {
           },
         }
       );
+      console.log("Waiting time response:", response.data);
       setWaitingTime(response.data.waitingTime);
     } catch (error) {
       handleApiError(error);
