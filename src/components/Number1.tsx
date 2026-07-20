@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useQuery, useQueryClient } from "react-query";
+import { useQuery, useMutation, useQueryClient } from "react-query";
 import liff from "@line/liff/core";
 import IsLoggedIn from "@line/liff/is-logged-in";
 import Login from "@line/liff/login";
@@ -18,6 +18,11 @@ function Number1() {
   const [ error,setError] = useState<string | null>(null);
   const [isLoadingLiff, setIsLoadingLiff] = useState(true); // LIFF初期化中フラグ
   const [needRelogin, setNeedRelogin] = useState(false);
+  // 来院タップの結果（タップ直後の表示更新用。初期状態はticketDataのarrivedから決まる）
+  const [arrivedInfo, setArrivedInfo] = useState<{
+    arrived: boolean;
+    at: string | null;
+  } | null>(null);
   const queryClient = useQueryClient();
   const handleApiError = async (error: any) => {
     if (axios.isAxiosError(error) && error.response?.status === 401) {
@@ -99,6 +104,42 @@ function Number1() {
   );
 
 
+
+  // 来院したのでタップ → クリニックの受付画面に「来院済み」として表示される
+  const arrivedMutation = useMutation(
+    async () => {
+      const accessToken = liff.getAccessToken();
+      if (!accessToken) {
+        throw new Error("アクセストークンがありません。");
+      }
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/liff/arrived`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      return response.data;
+    },
+    {
+      onSuccess: (data) => {
+        if (data?.ok) {
+          setArrivedInfo({ arrived: true, at: data.arrived_at ?? null });
+        }
+        queryClient.invalidateQueries("ticketData");
+      },
+      onError: handleApiError,
+    }
+  );
+
+  // 表示上の来院状態: タップ直後はローカル状態、それ以外はサーバーの値
+  const effectiveArrived =
+    arrivedInfo ??
+    (ticketData?.arrived === 1
+      ? { arrived: true, at: ticketData?.arrived_at ?? null }
+      : { arrived: false, at: null });
 
   useEffect(() => {
     const initializeLiff = async () => {
@@ -184,8 +225,40 @@ function Number1() {
             <p className="text-gray-500">LINEから発券されていません</p>
           )}
         </div>
-      </div>  
-     
+      </div>
+
+      {/* 来院タップ: 発券があり、無効化されていない場合に表示 */}
+      {!isLoadingTicket &&
+        !ticketError &&
+        ticketData?.ticket_number &&
+        ticketData?.status !== 2 && (
+          <div className="mt-4 text-center">
+            {effectiveArrived.arrived ? (
+              <div className="bg-green-500 text-white rounded-xl shadow-md py-4 px-6 font-bold text-lg">
+                ✅ 来院済み{effectiveArrived.at ? `（${effectiveArrived.at}）` : ""}
+                <p className="text-sm font-normal mt-1">
+                  受付に保険証をご提示ください
+                </p>
+              </div>
+            ) : (
+              <button
+                onClick={() => arrivedMutation.mutate()}
+                disabled={arrivedMutation.isLoading}
+                className="w-full bg-white text-orange-500 rounded-xl shadow-md py-4 px-6 font-bold text-xl active:scale-95 transition-transform disabled:opacity-60"
+              >
+                {arrivedMutation.isLoading
+                  ? "記録中..."
+                  : "🏥 来院したのでタップ"}
+              </button>
+            )}
+          </div>
+        )}
+      {ticketData?.status === 2 && (
+        <p className="mt-4 text-center text-white text-sm bg-red-400 rounded-lg p-2">
+          この番号は無効になっています。お手数ですが受付にお声がけください
+        </p>
+      )}
+
         {needRelogin && (
           <div className="mt-4 text-center">
             <p className="text-red-500 mb-2">{error}</p>
