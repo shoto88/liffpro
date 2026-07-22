@@ -23,6 +23,8 @@ function Number1() {
     arrived: boolean;
     at: string | null;
   } | null>(null);
+  // タップできなかったときの案内文（開院前など）
+  const [tapMessage, setTapMessage] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const handleApiError = async (error: any) => {
     if (axios.isAxiosError(error) && error.response?.status === 401) {
@@ -127,6 +129,17 @@ function Number1() {
       onSuccess: (data) => {
         if (data?.ok) {
           setArrivedInfo({ arrived: true, at: data.arrived_at ?? null });
+          setTapMessage(null);
+        } else if (data?.reason === "too_early") {
+          setTapMessage(
+            `まだ開院前です。来院タップは ${data.accept_from} から受け付けています。ご来院後にもう一度タップしてください🙇‍♂️`
+          );
+        } else if (data?.reason === "deactivated") {
+          setTapMessage(
+            "この番号は無効になっています。お手数ですが受付にお声がけください。"
+          );
+        } else if (data?.reason === "no_ticket") {
+          setTapMessage("本日の発券が見つかりませんでした。");
         }
         queryClient.invalidateQueries("ticketData");
       },
@@ -250,6 +263,11 @@ function Number1() {
                   ? "記録中..."
                   : "🏥 来院したのでタップ"}
               </button>
+            )}
+            {tapMessage && (
+              <p className="mt-3 text-sm text-white bg-yellow-500 bg-opacity-90 rounded-lg p-3 text-left">
+                {tapMessage}
+              </p>
             )}
           </div>
         )}
